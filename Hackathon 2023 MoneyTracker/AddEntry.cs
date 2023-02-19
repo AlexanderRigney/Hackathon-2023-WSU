@@ -14,14 +14,28 @@ namespace Hackathon_2023_MoneyTracker
     {
         public Data data;
         
+        private int index = -1;
+        
         public AddEntry()
         {
             InitializeComponent();
         }
+        
+        public void setIndex(int index) {
+            this.index = index;
+            Record record = data.getRecord(index);
+            textBox1.Text = record.label;
+            textBox2.Text = record.money.ToString();
+            dateTimePicker1.Value = record.date;
+            comboBox1.SelectedIndex = (int)record.repeats;
+            button1.Text = "Save";
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Record record = new Record();
+            if (index != -1)
+                data.prepareUpdateRecord(index);
+            Record record = index == -1 ? new Record() : data.getRecord(index);
             record.label = textBox1.Text;
             record.money = Int64.Parse(textBox2.Text);
             record.date = dateTimePicker1.Value;
@@ -32,7 +46,11 @@ namespace Hackathon_2023_MoneyTracker
             case "biweekly": record.repeats = Record.Repeat.biweekly; break;
             case "monthly" : record.repeats = Record.Repeat.monthly ; break;
             }
-            data.addRecord(record);
+            if (index == -1)
+                data.addRecord(record);
+            else
+                data.updateRecord(index);
+            data.save();
             Close();
         }
     }
